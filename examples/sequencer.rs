@@ -39,8 +39,8 @@ async fn main() {
             ResolvingError::NotSupported => println!("Resolving not supported"),
         },
     }
-    let client_goerli = SequencerGatewayProvider::starknet_alpha_goerli();
 
+    let client_goerli = SequencerGatewayProvider::starknet_alpha_goerli();
     println!("On goerli:");
     let addr = client_goerli
         .domain_to_address("th0rgal.stark", GOERLI_CONTRACT)
@@ -55,7 +55,7 @@ async fn main() {
         },
     }
 
-    let domain_result = client
+    let domain_result = client_goerli
         .address_to_domain(
             FieldElement::from_hex_be(
                 "0x048F24D0D0618fa31813DB91a45d8be6c50749e5E19ec699092CE29aBe809294",
