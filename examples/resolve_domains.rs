@@ -1,7 +1,7 @@
 use starknet::{core::types::FieldElement, providers::SequencerGatewayProvider};
 use starknet_id::{
     naming::{ResolvingError, GOERLI_CONTRACT, MAINNET_CONTRACT},
-    SequencerGatewayProviderExt,
+    ProviderExt,
 };
 
 #[tokio::main]

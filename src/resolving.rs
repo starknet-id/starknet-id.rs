@@ -3,14 +3,14 @@ use crate::{
     naming::{ResolvingError, SELECTOR_A2D, SELECTOR_D2A},
 };
 use async_trait::async_trait;
-use starknet::providers::sequencer::models::BlockId;
+use starknet::core::types::FieldElement;
 use starknet::{
-    core::types::FieldElement,
-    providers::{sequencer::models::CallFunction, SequencerGatewayProvider},
+    core::types::{BlockId, BlockTag, FunctionCall},
+    providers::Provider,
 };
 
 #[async_trait]
-pub trait SequencerGatewayProviderExt {
+pub trait ProviderExt {
     async fn domain_to_address(
         &self,
         domain: &str,
@@ -24,9 +24,8 @@ pub trait SequencerGatewayProviderExt {
     ) -> Result<String, ResolvingError>;
 }
 
-// Implement the extension trait for SequencerGatewayProvider
 #[async_trait]
-impl SequencerGatewayProviderExt for SequencerGatewayProvider {
+impl<T: Provider + Sync> ProviderExt for T {
     async fn domain_to_address(
         &self,
         domain: &str,
@@ -39,17 +38,17 @@ impl SequencerGatewayProviderExt for SequencerGatewayProvider {
         match encoding_result {
             Ok(encoded) => {
                 match self
-                    .call_contract(
-                        CallFunction {
+                    .call(
+                        FunctionCall {
                             contract_address: contract_addr,
                             entry_point_selector: SELECTOR_D2A,
                             calldata: vec![FieldElement::ONE, encoded],
                         },
-                        BlockId::Latest,
+                        BlockId::Tag(BlockTag::Latest),
                     )
                     .await
                 {
-                    Ok(result) => match result.result.first() {
+                    Ok(result) => match result.first() {
                         Some(x) => Ok(*x),
                         None => Err(ResolvingError::InvalidContractResult),
                     },
@@ -66,18 +65,18 @@ impl SequencerGatewayProviderExt for SequencerGatewayProvider {
         contract_addr: FieldElement,
     ) -> Result<String, ResolvingError> {
         match self
-            .call_contract(
-                CallFunction {
+            .call(
+                FunctionCall {
                     contract_address: contract_addr,
                     entry_point_selector: SELECTOR_A2D,
                     calldata: vec![address],
                 },
-                BlockId::Latest,
+                BlockId::Tag(BlockTag::Latest),
             )
             .await
         {
             Ok(result) => {
-                let mut calldata = result.result.iter();
+                let mut calldata = result.iter();
                 let mut domain = String::new().to_owned();
                 match calldata.next() {
                     Some(_) => {
