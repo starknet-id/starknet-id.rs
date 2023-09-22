@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.73"
+lazy_static = "1.4.0"
 num-traits = "0.2.14"
 starknet = "0.6.0"
 

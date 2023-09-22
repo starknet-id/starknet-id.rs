@@ -1,8 +1,15 @@
+use lazy_static::lazy_static;
 use num_traits::cast::ToPrimitive;
 use starknet::core::types::FieldElement;
 
 const BASIC_ALPHABET: &str = "abcdefghijklmnopqrstuvwxyz0123456789-";
 const BIG_ALPHABET: &str = "这来";
+
+lazy_static! {
+    static ref BASIC_ALPHABET_SIZE: FieldElement =
+        FieldElement::from(BASIC_ALPHABET.chars().count());
+    static ref BIG_ALPHABET_SIZE: FieldElement = FieldElement::from(BIG_ALPHABET.chars().count());
+}
 
 #[derive(Debug)]
 pub enum EncodingError {
@@ -22,7 +29,7 @@ fn extract_stars(mut domain: &str) -> (&str, usize) {
 }
 
 pub fn encode(domain: &str) -> Result<FieldElement, EncodingError> {
-    let mut mul = 1;
+    let mut mul = FieldElement::ONE;
     let mut output = FieldElement::ZERO;
     let mut wip_domain: String;
 
@@ -65,7 +72,7 @@ pub fn encode(domain: &str) -> Result<FieldElement, EncodingError> {
 
     for (i, c) in wip_domain.chars().enumerate() {
         if i == wip_domain.chars().count() - 1 && c == BASIC_ALPHABET.chars().next().unwrap() {
-            output = output + FieldElement::from(BASIC_ALPHABET.chars().count() * mul);
+            output = output + *BASIC_ALPHABET_SIZE * mul;
         } else {
             let found_basic = BASIC_ALPHABET
                 .chars()
@@ -73,27 +80,26 @@ pub fn encode(domain: &str) -> Result<FieldElement, EncodingError> {
 
             match found_basic {
                 Some(index) => {
-                    output = output + FieldElement::from(index * mul);
-                    mul *= BASIC_ALPHABET.chars().count() + 1;
+                    output = output + FieldElement::from(index) * mul;
+                    mul *= *BASIC_ALPHABET_SIZE + FieldElement::ONE;
                 }
                 None => {
                     let found_big = BIG_ALPHABET.chars().position(|alphabet_c| alphabet_c == c);
                     match found_big {
                         Some(index) => {
-                            output =
-                                output + FieldElement::from(BASIC_ALPHABET.chars().count() * mul);
-                            mul *= BASIC_ALPHABET.chars().count() + 1;
+                            output = output + *BASIC_ALPHABET_SIZE * mul;
+                            mul *= *BASIC_ALPHABET_SIZE + FieldElement::ONE;
 
                             output = output
                                 + FieldElement::from(
-                                    mul * (index
+                                    mul * (FieldElement::from(index)
                                         + if i == wip_domain.chars().count() - 1 {
-                                            1
+                                            FieldElement::ONE
                                         } else {
-                                            0
+                                            FieldElement::ZERO
                                         }),
                                 );
-                            mul *= BIG_ALPHABET.chars().count();
+                            mul *= *BIG_ALPHABET_SIZE;
                         }
                         None => {
                             return Err(EncodingError::UnkwnownCharacter(c));
