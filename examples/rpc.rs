@@ -3,26 +3,26 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 use starknet_id::{
-    naming::{ResolvingError, GOERLI_CONTRACT},
+    naming::{ResolvingError, SEPOLIA_CONTRACT},
     ProviderExt,
 };
 use url::Url;
 
 fn create_jsonrpc_client() -> JsonRpcClient<HttpTransport> {
     let rpc_url =
-        std::env::var("STARKNET_RPC").unwrap_or("https://rpc-goerli-1.starknet.rs/rpc/v0.4".into());
+        std::env::var("STARKNET_RPC").unwrap_or("https://sepolia.rpc.starknet.id/".into());
     JsonRpcClient::new(HttpTransport::new(Url::parse(&rpc_url).unwrap()))
 }
 
 #[tokio::main]
 async fn main() {
-    let client_goerli = create_jsonrpc_client();
-    println!("On goerli:");
-    let addr = client_goerli
-        .domain_to_address("th0rgal.stark", GOERLI_CONTRACT)
+    let client_sepolia = create_jsonrpc_client();
+    println!("On sepolia:");
+    let addr = client_sepolia
+        .domain_to_address("th0rgal.stark", SEPOLIA_CONTRACT)
         .await;
     match addr {
-        Ok(addr) => println!("address: {}", addr),
+        Ok(addr) => println!("address: 0x{:x}", addr),
         Err(err) => match err {
             ResolvingError::ConnectionError(cause) => println!("Connection error: {}", cause),
             ResolvingError::InvalidContractResult => println!("Invalid contract result"),
@@ -31,13 +31,13 @@ async fn main() {
         },
     }
 
-    let domain_result = client_goerli
+    let domain_result = client_sepolia
         .address_to_domain(
             FieldElement::from_hex_be(
-                "0x048F24D0D0618fa31813DB91a45d8be6c50749e5E19ec699092CE29aBe809294",
+                "0x0403c80a49f16Ed8Ecf751f4B3Ad62CC8f85EbEB2d40DC3B4377a089b438995D",
             )
             .unwrap(),
-            GOERLI_CONTRACT,
+            SEPOLIA_CONTRACT,
         )
         .await;
     match domain_result {

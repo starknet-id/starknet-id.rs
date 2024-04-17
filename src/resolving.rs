@@ -42,7 +42,7 @@ impl<T: Provider + Sync> ProviderExt for T {
                         FunctionCall {
                             contract_address: contract_addr,
                             entry_point_selector: SELECTOR_D2A,
-                            calldata: vec![FieldElement::ONE, encoded],
+                            calldata: vec![FieldElement::ONE, encoded, FieldElement::ZERO],
                         },
                         BlockId::Tag(BlockTag::Latest),
                     )
@@ -69,7 +69,7 @@ impl<T: Provider + Sync> ProviderExt for T {
                 FunctionCall {
                     contract_address: contract_addr,
                     entry_point_selector: SELECTOR_A2D,
-                    calldata: vec![address],
+                    calldata: vec![address, FieldElement::ZERO],
                 },
                 BlockId::Tag(BlockTag::Latest),
             )

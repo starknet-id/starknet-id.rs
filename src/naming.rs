@@ -29,6 +29,13 @@ pub const GOERLI_CONTRACT: FieldElement = FieldElement::from_mont([
     452192057203262238,
 ]);
 
+pub const SEPOLIA_CONTRACT: FieldElement = FieldElement::from_mont([
+    9545268995402309891,
+    15656365478474140601,
+    4554984079195314985,
+    212585471442387825,
+]);
+
 pub const SELECTOR_A2D: FieldElement = FieldElement::from_mont([
     14453853710431432356,
     1760183467521543892,
